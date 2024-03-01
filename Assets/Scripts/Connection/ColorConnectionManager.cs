@@ -60,7 +60,6 @@ namespace Connection
 
             if (TryGetColorNodeInPosition(startPosition, out var colorNode) && !colorNode.IsEmpty)
                 StartConnecting(colorNode);
-            Debug.LogError($"StartConnecting");
         }
 
         private void OnDragEnd(Vector3 finishPosition)
@@ -82,7 +81,6 @@ namespace Connection
             {
                 CancelConnecting();
             }
-            Debug.LogError($"FinishConnecting");
             _currentConnectionMainNode = null;
         }
         
