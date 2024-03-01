@@ -1,4 +1,3 @@
-using System;
 using Connection;
 using Events;
 using Player.ActionHandlers;
@@ -32,6 +31,8 @@ namespace Levels
             
             if (node != null)
                 EventsController.Fire(new EventModels.Game.NodeTapped());
+            else
+                EventsController.Fire(new EventModels.Game.CameraPanoramicScrollEvent());
         }
         
         private void OnPointerUp(Vector3 position)
