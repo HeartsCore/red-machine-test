@@ -8,13 +8,13 @@ namespace Utils.Scenes
 {
     public static class ScenesChanger
     {
-        public static AsyncOperation CurrentChangeOperation { get; private set; }
-        public static bool IsLoading { get; private set; }
         public static event Action SceneLoadedEvent;
 
         private static string _loadingSceneName;
         private static bool _changingStarted;
 
+        public static bool IsLoading { get; private set; }
+        public static AsyncOperation CurrentChangeOperation { get; private set; }
 
         public static void GotoScene(string sceneName)
         {

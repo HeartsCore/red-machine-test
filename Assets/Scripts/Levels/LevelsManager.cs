@@ -9,13 +9,17 @@ namespace Levels
         private const string LevelNamePattern = "Level{0}";
 
         private int _currentLevelIndex;
-
-
+        
         private void Start()
         {
             ScenesChanger.GotoScene(string.Format(LevelNamePattern, _currentLevelIndex));
 
             EventsController.Subscribe<EventModels.Game.TargetColorNodesFilled>(this, OnTargetColorNodesFilled);
+        }
+        
+        private void OnDestroy()
+        {
+            EventsController.Unsubscribe<EventModels.Game.TargetColorNodesFilled>(OnTargetColorNodesFilled);;
         }
 
         private void OnTargetColorNodesFilled(EventModels.Game.TargetColorNodesFilled e)

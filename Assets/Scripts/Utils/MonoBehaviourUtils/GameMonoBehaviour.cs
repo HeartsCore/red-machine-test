@@ -7,8 +7,7 @@ namespace Utils.MonoBehaviourUtils
     public class GameMonoBehaviour : MonoBehaviour
     {
         [SerializeField] private ActivityType activityType = ActivityType.Active;
-            
-            
+        
         protected virtual void OnValidate()
         {
             CheckFields();

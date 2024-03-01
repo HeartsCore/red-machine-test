@@ -6,7 +6,6 @@ namespace Connection
     {
         private readonly Stack<ColorConnectionData> _connectionsHistoryQueue = new();
 
-
         public void RememberConnection(ColorNode mainColorNode, ColorNode targetColorNode,
             ColorConnector colorConnector)
         {
@@ -14,7 +13,7 @@ namespace Connection
                 new ColorConnectionData(mainColorNode, targetColorNode, colorConnector));
         }
 
-        public ColorConnectionData GetPreviousConnectionData()
+        public ColorConnectionData? GetPreviousConnectionData()
         {
             return _connectionsHistoryQueue.TryPop(out var result) 
                 ? result 

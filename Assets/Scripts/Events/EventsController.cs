@@ -8,7 +8,7 @@ namespace Events
     {
         private static EventsController _instance;
 
-        private readonly Dictionary<Type, EventHandleCore> _handlers = new Dictionary<Type, EventHandleCore>(100);
+        private readonly Dictionary<Type, EventHandleCore> _handlers = new(100);
 
         public static EventsController Instance
         {
@@ -44,11 +44,6 @@ namespace Events
             Instance.FireEvent(args);
         }
 
-        public static bool HasWatchers<T>() where T : struct, IEvent
-        {
-            return Instance.HasWatchersDirect<T>();
-        }
-
         private void Sub<T>(object watcher, Action<T> action)
         {
             EventHandleCore value = null;
@@ -80,17 +75,6 @@ namespace Events
             }
 
             (value as EventHandle<T>).Fire(args);
-        }
-
-        private bool HasWatchersDirect<T>() where T : struct
-        {
-            EventHandleCore value = null;
-            if (_handlers.TryGetValue(typeof(T), out value))
-            {
-                return value.Watchers.Count > 0;
-            }
-
-            return false;
         }
 
         private void AddHelper()

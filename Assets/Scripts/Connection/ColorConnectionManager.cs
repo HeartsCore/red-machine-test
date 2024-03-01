@@ -5,27 +5,22 @@ using Player;
 using Player.ActionHandlers;
 using UnityEngine;
 
-
 namespace Connection
 {
     public class ColorConnectionManager : MonoBehaviour
     {
         [SerializeField] private GameObject colorNodesContainer;
         [SerializeField] private ColorConnector colorConnector;
-
-        private ClickHandler _clickHandler;
         
         private readonly ColorConnectionHistoryHandler _historyHandler = new();
-
-        private ColorNode[] _nodes;
-
         private readonly Dictionary<ColorNodeTarget, bool> _completionsByTargetNode = new();
         private readonly Dictionary<ColorNode, HashSet<ColorNode>> _connectionsFromColorNode = new();
-
+        
+        private ColorNode[] _nodes;
+        private ClickHandler _clickHandler;
         private ColorNode _currentConnectionMainNode;
         private ColorConnector _currentColorConnector;
-
-
+        
         private void Awake()
         {
             _nodes = colorNodesContainer.GetComponentsInChildren<ColorNode>();
@@ -38,12 +33,72 @@ namespace Connection
             }
 
             _clickHandler = ClickHandler.Instance;
-            _clickHandler.SetDragEventHandlers(OnDragStart, OnDragEnd);
+            _clickHandler.AddDragEventHandlers(OnDragStart, OnDragEnd);
         }
 
         private void OnDestroy()
         {
             _clickHandler.ClearEvents();
+            _clickHandler.RemoveDragEventHandlers(OnDragStart, OnDragEnd);
+        }
+        
+        private void OnTargetCompletionChange(ColorNodeTarget nodeTarget, bool isCompleted)
+        {
+            if (!_completionsByTargetNode.ContainsKey(nodeTarget))
+                return;
+
+            _completionsByTargetNode[nodeTarget] = isCompleted;
+
+            if (isCompleted && _completionsByTargetNode.Values.All(c => c))
+                EventsController.Fire(new EventModels.Game.TargetColorNodesFilled());
+        }
+        
+        private void OnDragStart(Vector3 startPosition)
+        {
+            if (PlayerController.PlayerState != PlayerState.Connecting)
+                return;
+
+            if (TryGetColorNodeInPosition(startPosition, out var colorNode) && !colorNode.IsEmpty)
+                StartConnecting(colorNode);
+            Debug.LogError($"StartConnecting");
+        }
+
+        private void OnDragEnd(Vector3 finishPosition)
+        {
+            if (PlayerController.PlayerState != PlayerState.Connecting)
+                return;
+
+            if (_currentColorConnector == null)
+                return;
+
+            if (TryGetColorNodeInPosition(finishPosition, out var colorNode) &&
+                _currentColorConnector.CanFinishConnecting &&
+                !HaveSameConnection(colorNode) &&
+                _currentConnectionMainNode != colorNode)
+            {
+                FinishConnecting(colorNode);
+            }
+            else
+            {
+                CancelConnecting();
+            }
+            Debug.LogError($"FinishConnecting");
+            _currentConnectionMainNode = null;
+        }
+        
+        public bool TryGetColorNodeInPosition(Vector2 position, out ColorNode result)
+        {
+            foreach (var colorNode in _nodes)
+            {
+                if (!colorNode.IsInBounds(position))
+                    continue;
+
+                result = colorNode;
+                return true;
+            }
+
+            result = null;
+            return false;
         }
 
         private void StartConnecting(ColorNode colorNode)
@@ -73,21 +128,6 @@ namespace Connection
             Destroy(_currentColorConnector.gameObject);
         }
 
-        public bool TryGetColorNodeInPosition(Vector2 position, out ColorNode result)
-        {
-            foreach (var colorNode in _nodes)
-            {
-                if (!colorNode.IsInBounds(position))
-                    continue;
-
-                result = colorNode;
-                return true;
-            }
-
-            result = null;
-            return false;
-        }
-
         private bool HaveSameConnection(ColorNode colorNode)
         {
             return _connectionsFromColorNode.ContainsKey(_currentConnectionMainNode)
@@ -99,61 +139,18 @@ namespace Connection
         public void ReverseLastConnection()
         {
             var lastConnectionData = _historyHandler.GetPreviousConnectionData();
-            if (lastConnectionData == null)
+            if (!lastConnectionData.HasValue)
                 return;
 
-            Destroy(lastConnectionData.ColorConnector.gameObject);
+            Destroy(lastConnectionData.Value.ColorConnector.gameObject);
 
-            var mainColorNode = lastConnectionData.MainColorNode;
-            var targetColorNode = lastConnectionData.TargetColorNode;
+            var mainColorNode = lastConnectionData.Value.MainColorNode;
+            var targetColorNode = lastConnectionData.Value.TargetColorNode;
 
-            targetColorNode.SetColor(lastConnectionData.PreviousTargetColorNodeColor);
-            targetColorNode.SetEmpty(lastConnectionData.WasTargetNodeEmpty);
+            targetColorNode.SetColor(lastConnectionData.Value.PreviousTargetColorNodeColor);
+            targetColorNode.SetEmpty(lastConnectionData.Value.WasTargetNodeEmpty);
 
             _connectionsFromColorNode[mainColorNode].Remove(targetColorNode);
-        }
-
-        private void OnDragStart(Vector3 startPosition)
-        {
-            if (PlayerController.PlayerState != PlayerState.Connecting)
-                return;
-
-            if (TryGetColorNodeInPosition(startPosition, out var colorNode) && !colorNode.IsEmpty)
-                StartConnecting(colorNode);
-        }
-
-        private void OnDragEnd(Vector3 finishPosition)
-        {
-            if (PlayerController.PlayerState != PlayerState.Connecting)
-                return;
-
-            if (_currentColorConnector == null)
-                return;
-
-            if (TryGetColorNodeInPosition(finishPosition, out var colorNode) &&
-                _currentColorConnector.CanFinishConnecting &&
-                !HaveSameConnection(colorNode) &&
-                _currentConnectionMainNode != colorNode)
-            {
-                FinishConnecting(colorNode);
-            }
-            else
-            {
-                CancelConnecting();
-            }
-
-            _currentConnectionMainNode = null;
-        }
-
-        private void OnTargetCompletionChange(ColorNodeTarget nodeTarget, bool isCompleted)
-        {
-            if (!_completionsByTargetNode.ContainsKey(nodeTarget))
-                return;
-
-            _completionsByTargetNode[nodeTarget] = isCompleted;
-
-            if (isCompleted && _completionsByTargetNode.Values.All(c => c))
-                EventsController.Fire(new EventModels.Game.TargetColorNodesFilled());
         }
     }
 }

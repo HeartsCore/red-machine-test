@@ -2,41 +2,33 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Utils.Singleton;
 
 namespace Events
 {
-    public class EventsControllerSetup : MonoBehaviour
+    public class EventsControllerSetup : DontDestroyMonoBehaviourSingleton<EventsControllerSetup>
     {
         [Serializable]
         public class EventData
         {
-            public string Name = string.Empty;
-
             public Type Type;
 
-            public List<MonoBehaviour> MonoWatchers = new List<MonoBehaviour>(100);
+            public List<MonoBehaviour> MonoWatchers = new(100);
 
-            public List<string> OtherWatchers = new List<string>(100);
+            public List<string> OtherWatchers = new(100);
 
             public EventData(Type type)
             {
                 Type = type;
-                Name = type.ToString();
             }
         }
 
-        public List<EventData> Events = new List<EventData>(100);
+        public List<EventData> Events = new(100);
 
-        private Dictionary<Type, string> _typeCache = new Dictionary<Type, string>();
-
+        private Dictionary<Type, string> _typeCache = new();
         private float _cleanupTimer;
 
         public bool AutoFill => false;
-
-        private void Awake()
-        {
-            DontDestroyOnLoad(base.gameObject);
-        }
 
         private void OnEnable()
         {

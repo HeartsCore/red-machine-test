@@ -1,7 +1,5 @@
 using System;
-using Player.ActionHandlers;
 using UnityEngine;
-
 
 namespace Connection
 {
@@ -20,7 +18,6 @@ namespace Connection
         public bool IsEmpty => isEmpty;
 
         private Bounds _bounds;
-        
 
         private void Awake()
         {
@@ -64,7 +61,6 @@ namespace Connection
             }
         }
         
-
         private void OnValidate()
         {
             if (isEmpty)

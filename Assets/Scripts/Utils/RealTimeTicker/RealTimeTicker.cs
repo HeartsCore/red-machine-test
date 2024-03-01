@@ -15,7 +15,6 @@ namespace Utils.RealTimeTicker
         
         private static float _realtimeSinceStartup;
         
-
         private void Awake()
         {
             DontDestroyOnLoad(gameObject);

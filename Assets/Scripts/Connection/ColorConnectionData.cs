@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Connection
 {
-    public class ColorConnectionData
+    public struct ColorConnectionData
     {
         public readonly ColorNode MainColorNode;
         public readonly ColorNode TargetColorNode;

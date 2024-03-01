@@ -1,15 +1,13 @@
 using Utils.Singleton;
 
-
 namespace Player
 {
     public class PlayerController : DontDestroyMonoBehaviour
     {
-        public static PlayerState PlayerState { get; private set; }
-
         private PlayerSateObserver _observer;
-
-
+        
+        public static PlayerState PlayerState { get; private set; }
+        
         protected override void Awake()
         {
             base.Awake();

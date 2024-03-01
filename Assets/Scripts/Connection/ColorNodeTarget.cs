@@ -1,5 +1,4 @@
 using System;
-using Events;
 using UnityEngine;
 
 namespace Connection
@@ -10,11 +9,10 @@ namespace Connection
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private ColorNode colorNode;
         
-        public bool IsCompleted => targetColor == colorNode.Color;
-
         public event Action<ColorNodeTarget, bool> TargetCompletionChangeEvent;
-
-
+        
+        public bool IsCompleted => targetColor == colorNode.Color;
+        
         private void Awake()
         {
             colorNode.ColorChangedEvent += OnColorChanged;

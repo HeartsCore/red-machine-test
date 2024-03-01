@@ -1,31 +1,24 @@
 using Camera;
 using UnityEngine;
 
-
 namespace Connection
 {
     public class ColorConnector : MonoBehaviour
     {
-        [Header("Settings")] 
-        [SerializeField] private float maxLength;
-
-        [Header("Components")] 
-        [SerializeField] private Transform lineTransform;
-        [SerializeField] private SpriteRenderer lineSpriteRenderer;
-
-        public Color Color => lineSpriteRenderer.color;
-
-        public bool CanFinishConnecting { get; private set; }
+        [Header("Settings")] [SerializeField] private float maxLength;
+        [Header("Components")] [SerializeField] private Transform lineTransform;
+        [Header("Connection Renderer")][SerializeField] private SpriteRenderer lineSpriteRenderer;
 
         private Vector2 _startPoint;
-
         private float _lineWidth;
         private Vector2 _linePosition;
         private Vector2 _lineDirection;
-
         private bool _isConnecting;
+        
+        public Color Color => lineSpriteRenderer.color;
 
-
+        public bool CanFinishConnecting { get; private set; }
+        
         private void Update()
         {
             if (!_isConnecting)
